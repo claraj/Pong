@@ -112,10 +112,15 @@ public class Main {
 
             void moveBall() {
                 System.out.println("move ball");
+                //move in current direction
+                //bounce off walls and paddle
+                //Take into account velocity of paddles
+
             }
 
             void moveComputerPaddle(){
                 System.out.println("move computer paddle");
+                //TODO move in direction of the ball.
             }
 
             boolean isGameOver() {
