@@ -34,8 +34,11 @@ public class Main {
     static int ballSize = 10;
     
     static double ballSpeed = 5;   //Again, pixels moved per clock tick
-    static double ballDirection = Math.PI / 2;  //an angle, in radians
-//    static double ballDirection = 0;
+
+
+  //  static double ballDirection = Math.PI / 2;  //an angle, in radians. MOVING DOWN
+  //  static double ballDirection = 0;  //MOVING RIGHT
+    static double ballDirection = 1;
 //
 //    static final int UP = 1;
 //    static final int DOWN = 2;
@@ -198,19 +201,22 @@ public class Main {
 
                 if (hitWall == true) {
                     //bounce
-                    ballDirection = (Math.PI) - ballDirection;
+                    ballDirection = ( (2 * Math.PI) - ballDirection );
+                    System.out.println("ball direction " + ballDirection);
+
 
                 }
                 
                 if (hitComputerPaddle == true) {
-                    //TODO bounce off paddle 
+                    //TODO bounce off paddle
+
                     ballDirection = (Math.PI) - ballDirection;
                     //TODO factor in speed
 
                 }
                 
                 if (hitHumanPaddle == true) {
-                    //TODO actually bounce off paddle
+                    //TODO verify actually bounce off paddle
                     //Reverse direction
                     ballDirection = (Math.PI) - ballDirection;
                     //TODO consider speed
@@ -253,22 +259,22 @@ public class Main {
                 //if ballY = 100 and paddleY is 50, difference = 50, need to adjust  
                 //paddleY by up to the max speed (the minimum of difference and maxSpeed)
                 
-                //if ballY = 50 and paddleY = 100 then difference = 50
+                //if ballY = 50 and paddleY = 100 then difference = -50
                 //Need to move paddleY down by the max speed
                 
                 
                 int ballPaddleDifference = computerPaddleY - (int)ballY;
-                
-                if (ballPaddleDifference > 0 ) {
-                    int distanceToMove = Math.min(ballPaddleDifference, computerPaddleMaxSpeed);
-                    computerPaddleY += distanceToMove;
-                    computerPaddleSpeed = distanceToMove;
-                } else if (ballPaddleDifference < 0){
-                    int distanceToMove = Math.max(ballPaddleDifference, -computerPaddleMaxSpeed);
+                int distanceToMove = Math.min(Math.abs(ballPaddleDifference), computerPaddleMaxSpeed);
+                computerPaddleSpeed = distanceToMove;
+
+                if (ballPaddleDifference > 0 ) {   //Difference is positive - paddle is below ball on screen
                     computerPaddleY -= distanceToMove;
-                    computerPaddleSpeed = Math.abs(distanceToMove);
+
+                } else if (ballPaddleDifference < 0){
+                    computerPaddleY += distanceToMove;
+
                 } else {
-                    //Ball and paddle are aligned. Don't move!
+                    //Ball and paddle are aligned. Don't need to move!
                     computerPaddleSpeed = 0;
                 }
                 
