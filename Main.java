@@ -45,7 +45,9 @@ public class Main {
         
         public void paintComponent(Graphics g) {
             super.paintComponent(g);
-            
+
+            //System.out.println("* Repaint *");
+
             if (gameOver) {
                 g.drawString( "Game over!", 20, 30 );
                 return;
@@ -73,21 +75,33 @@ public class Main {
         
         @Override
         public void keyPressed(KeyEvent ev) {
+
+            System.out.println("key event!" + ev);
+
             if (ev.getKeyCode() == KeyEvent.VK_DOWN) {
-                //System.out.println("down key");
-                moveUp();
+                System.out.println("down key");
+                moveDown();
             }
             if (ev.getKeyCode() == KeyEvent.VK_UP) {
-                //System.out.println("up key");
-                moveDown();
+                System.out.println("up key");
+                moveUp();
             }
             
             ev.getComponent().repaint();
         }
         
-        private void moveDown() {}
+        private void moveDown() {
+            if (humanPaddleY < screenSize - paddleSize) {
+                humanPaddleY+=humanPaddleMaxSpeed;
+            }
+        }
         
-        private void moveUp() {}
+        private void moveUp() {
+
+            if (humanPaddleY > paddleSize) {
+                humanPaddleY-=humanPaddleMaxSpeed;
+            }
+        }
         
         
     }
@@ -98,9 +112,7 @@ public class Main {
         
         gamePanel = new GameDisplay();
         
-        KeyHandler listener = new KeyHandler();
-        gamePanel.addKeyListener(listener);
-        
+
         JPanel content = new JPanel();
         content.setLayout(new BorderLayout());
         content.add(gamePanel, BorderLayout.CENTER);
@@ -111,7 +123,10 @@ public class Main {
         window.setSize(screenSize, screenSize);
         window.setLocation(100,100);
         window.setVisible(true);
-        
+
+        KeyHandler listener = new KeyHandler();
+        window.addKeyListener(listener);
+
         ActionListener gameUpdater = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -146,7 +161,7 @@ public class Main {
                     gameOver = true;
                     return;
                 }
-                if (ballY >= 0 || ballY >= screenSize ) {
+                if (ballY <= 0 || ballY >= screenSize ) {
                     hitWall = true;
                 }
                 
@@ -167,27 +182,44 @@ public class Main {
                 
                 if (hitWall == true) {
                     //TODO bounce
+                    ballDirection = (2 * Math.PI) - ballDirection;
+
                 }
                 
                 if (hitComputerPaddle == true) {
                     //TODO bounce off paddle 
+                    ballDirection = (2 * Math.PI) - ballDirection;
                     //TODO factor in speed
+
                 }
                 
                 if (hitHumanPaddle == true) {
                     //TODO bounce off paddle
+                    //Reverse direction
+                    ballDirection = (2 * Math.PI) - ballDirection;
                     //TODO consider speed
+
                 }
                 
                 if (hitWall == false && hitComputerPaddle == false && hitHumanPaddle == false) {
                     //TODO ball is in "mid air"
                     //Continue current trajectory
+
+                    //MATH
+
+                    //distance to move in the X direction is ballspeed * cos(ballDirection)
+                    //distance to move in the Y direction is ballspeed * sin(ballDirection)
+
+                    ballX = ballX + (ballSpeed * Math.cos(ballDirection));
+                    ballY = ballY + (ballSpeed * Math.sin(ballDirection));
+
+
                 }
                 
             }
             
             void moveComputerPaddle(){
-                System.out.println("move computer paddle");
+                //System.out.println("move computer paddle");
                 
                 
                 //if ballY = 100 and paddleY is 50, difference = 50, need to adjust  
