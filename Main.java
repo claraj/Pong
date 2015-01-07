@@ -33,8 +33,15 @@ public class Main {
     static double  ballY = screenSize / 2;
     
     static double ballSpeed = 5;   //Again, pixels moved per clock tick
-    static double ballDirection = 0;  //an angle, in radians 
-    
+    static double ballDirection = Math.PI / 2;  //an angle, in radians
+
+    static final int UP = 1;
+    static final int DOWN = 2;
+    static final int LEFT = 3;
+    static final int RIGHT = 4;
+    static int relativeDirection = DOWN;    //Adjust this if ballDirection is changed
+
+
     static Timer timer;
     
     static GameDisplay gamePanel;
@@ -150,7 +157,7 @@ public class Main {
                 //move in current direction
                 //bounce off walls and paddle
                 //TODO Take into account speed of paddles
-                
+
                 //Work in double
                 
                 boolean hitWall = false;
@@ -179,7 +186,8 @@ public class Main {
                 static double ballSpeed = 5;   //Again, pixels moved per clock tick
                 static double ballDirection = 0;  //an angle, in radians 
     */
-                
+
+
                 if (hitWall == true) {
                     //TODO bounce
                     ballDirection = (2 * Math.PI) - ballDirection;
@@ -215,9 +223,21 @@ public class Main {
 
 
                 }
-                
+
+
+
             }
-            
+
+
+            boolean ballGoingUp() {
+                    double absBallDirection = ballDirection % (Math.PI * 2);
+
+                    if (absBallDirection > (Math.PI / 2) && absBallDirection < Math.PI / 3 * 4){
+                        return false;
+                    }
+                    return true;
+            }
+
             void moveComputerPaddle(){
                 //System.out.println("move computer paddle");
                 
