@@ -23,7 +23,7 @@ public class Main {
     static int computerPaddleY = screenSize / 2 ;    //center of the paddle
     static int humanPaddleY = screenSize / 2 ;
     
-    static int computerPaddleMaxSpeed = 3;   //3 pixels per clock tick
+    static int computerPaddleMaxSpeed = 10;   //3 pixels per clock tick
     static int humanPaddleMaxSpeed = 5;   //3 pixels per clock tick
     
     static int humanPaddleSpeed = 0;      // "speed" is pixels moved up or down per clock tick
@@ -66,7 +66,9 @@ public class Main {
                 return;
             }
             
-            g.drawString( "Pong! \n Press up or down to start\nPress q to quit", 20, 30 );
+            g.drawString( "Pong! Press up or down to move", 20, 30 );
+            g.drawString( "Press q to quit", 20, 60 );
+
             g.setColor(Color.blue);
             //Ball
             g.drawOval((int)ballX, (int)ballY, ballSize, ballSize);
@@ -213,13 +215,18 @@ public class Main {
                     ballDirection = (Math.PI) - ballDirection;
                     //TODO factor in speed
 
+                    ballDirection += computerPaddleSpeed * 0.01;
+
+
                 }
                 
                 if (hitHumanPaddle == true) {
                     //TODO verify actually bounce off paddle
                     //Reverse direction
                     ballDirection = (Math.PI) - ballDirection;
-                    //TODO consider speed
+                    //TODO consider speed of paddle
+
+
 
                 }
                 
@@ -265,7 +272,8 @@ public class Main {
                 
                 int ballPaddleDifference = computerPaddleY - (int)ballY;
                 int distanceToMove = Math.min(Math.abs(ballPaddleDifference), computerPaddleMaxSpeed);
-                computerPaddleSpeed = distanceToMove;
+
+                System.out.println("computer paddle speed = " + computerPaddleSpeed);
 
                 if (ballPaddleDifference > 0 ) {   //Difference is positive - paddle is below ball on screen
                     computerPaddleY -= distanceToMove;
