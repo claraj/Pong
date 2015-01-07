@@ -1,7 +1,5 @@
 package com.clara;
 
-//import javax.swing.*;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -10,49 +8,43 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 public class Main {
-    
-    
-    
-    
-    static int screenSize = 300;    //and width
+
+    static int screenSize = 300;    //and width - screen is square
     static int paddleSize = 25;     //Actually half the paddle size - how much to draw on each side of center
-    static int paddleDistanceFromSide = 10;
+    static int paddleDistanceFromSide = 10;  //How much space between each paddle and side of screen
     
-    static int gameSpeed = 100;  //How long between clock ticks? Reduce this to speed up game
+    static int gameSpeed = 100;  //How many milliseconds between clock ticks? Reduce this to speed up game
     
-    static int computerPaddleY = screenSize / 2 ;    //center of the paddle
+    static int computerPaddleY = screenSize / 2 ;    //location of the center of the paddles on the Y-axis of the screen
     static int humanPaddleY = screenSize / 2 ;
     
-    static int computerPaddleMaxSpeed = 10;   //3 pixels per clock tick
-    static int humanPaddleMaxSpeed = 5;   //3 pixels per clock tick
+    static int computerPaddleMaxSpeed = 10;   //Max number of pixels that paddle can move clock tick
+    static int humanPaddleMaxSpeed = 5;   //This doesn't quite do the same thing...
     
     static int humanPaddleSpeed = 0;      // "speed" is pixels moved up or down per clock tick
     static int computerPaddleSpeed = 0;   // same
     
-    static double  ballX = screenSize / 2;
-    static double  ballY = screenSize / 2;
-    static int ballSize = 10;
+    static double  ballX = screenSize / 2;   //Imagine the ball is in a square box. These are the coordinates of the top of that box.
+    static double  ballY = screenSize / 2;   //So this starts the ball in (roughly) the center of the screen
+    static int ballSize = 10;                //Diameter of ball
     
     static double ballSpeed = 5;   //Again, pixels moved per clock tick
 
 
-  //  static double ballDirection = Math.PI / 2;  //an angle, in radians. MOVING DOWN
-  //  static double ballDirection = 0;  //MOVING RIGHT
-    static double ballDirection = 1;
-//
-//    static final int UP = 1;
-//    static final int DOWN = 2;
-//    static final int LEFT = 3;
-//    static final int RIGHT = 4;
-//    static int relativeDirection = DOWN;    //Adjust this if ballDirection is changed
+    //An angle in radians. This starts the ball moving down toward the human. Replace with some of the other
+    //commented out versions for a different start angle
+    //static double ballDirection = 1;   //set this to whatever you want (but helps if you angle towards a player)
+    //static double ballDirection = 0;   //heading right
+    //static double ballDirection = Math.PI;   //heading left
+    static double ballDirection = Math.PI + 1;   //heading left and up
 
+    static Timer timer;    //Ticks every *gameSpeed* milliseconds. Every time it ticks, the ball and computer paddle move
 
-    static Timer timer;
+    static GameDisplay gamePanel;   //draw the game components here
     
-    static GameDisplay gamePanel;
-    
-    static boolean gameOver;
-    
+    static boolean gameOver;      //Used to work out what message, if any, to display on the screen
+    static boolean removeInstructions = false;  // Same as above
+
     private static class GameDisplay extends JPanel {
 
         @Override
@@ -61,16 +53,22 @@ public class Main {
 
             //System.out.println("* Repaint *");
 
-            if (gameOver) {
+            if (gameOver == true) {
                 g.drawString( "Game over!", 20, 30 );
                 return;
             }
-            
-            g.drawString( "Pong! Press up or down to move", 20, 30 );
-            g.drawString( "Press q to quit", 20, 60 );
+
+            if (removeInstructions == false ) {
+                g.drawString("Pong! Press up or down to move", 20, 30);
+                g.drawString("Press q to quit", 20, 60);
+            }
 
             g.setColor(Color.blue);
-            //Ball
+
+            //While game is playing, these methods draw the ball, paddles, using the global variables
+            //Other parts of the code will modify these variables
+
+            //Ball - a circle is just an oval with the height equal to the width
             g.drawOval((int)ballX, (int)ballY, ballSize, ballSize);
             //Computer paddle
             g.drawLine(paddleDistanceFromSide, computerPaddleY - paddleSize, paddleDistanceFromSide, computerPaddleY + paddleSize);
@@ -79,23 +77,26 @@ public class Main {
             
         }
     }
-    
+
+    //Listen for user pressing a key, and moving human paddle in response
     private static class KeyHandler implements KeyListener {
         
         @Override
-        public void keyTyped(KeyEvent ev) {		char keyPressed = ev.getKeyChar();
+        public void keyTyped(KeyEvent ev) {
+            char keyPressed = ev.getKeyChar();
             char q = 'q';
             if( keyPressed == q){
                 System.exit(0);    //quit if user presses the q key.
-            }}
+            }
+        }
         
         @Override
-        public void keyReleased(KeyEvent ev) {}
+        public void keyReleased(KeyEvent ev) {}   //Don't need this one, but required to implement it.
         
         @Override
         public void keyPressed(KeyEvent ev) {
 
-            System.out.println("key event!" + ev);
+            removeInstructions = true;   //game has started
 
             if (ev.getKeyCode() == KeyEvent.VK_DOWN) {
                 System.out.println("down key");
@@ -105,62 +106,61 @@ public class Main {
                 System.out.println("up key");
                 moveUp();
             }
-            
-            ev.getComponent().repaint();
+
+            //ev.getComponent() returns the GUI component that generated this event
+            //In this case, it will be GameDisplay JPanel
+            ev.getComponent().repaint();   //This calls paintComponent(Graphics g) again
         }
         
         private void moveDown() {
+            //Coordinates decrease as you go up the screen, that's why this looks backwards.
             if (humanPaddleY < screenSize - paddleSize) {
                 humanPaddleY+=humanPaddleMaxSpeed;
             }
         }
         
         private void moveUp() {
-
+            //Coordinates increase as you go down the screen, that's why this looks backwards.
             if (humanPaddleY > paddleSize) {
                 humanPaddleY-=humanPaddleMaxSpeed;
             }
         }
-        
-        
+
     }
-    
-    
+
     
     public static void main(String[] args) {
         
         gamePanel = new GameDisplay();
-        
 
         JPanel content = new JPanel();
         content.setLayout(new BorderLayout());
         content.add(gamePanel, BorderLayout.CENTER);
         
-        JFrame window = new JFrame("Pong!");
-        window.setUndecorated(true);
-        window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        JFrame window = new JFrame();
+        window.setUndecorated(true);   //Hides the title bar.
+
+        window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);   //Quit the program when we close this window
         window.setContentPane(content);
         window.setSize(screenSize, screenSize);
-        window.setLocation(100,100);
+        window.setLocation(100,100);    //Where on the screen will this window appear?
         window.setVisible(true);
 
         KeyHandler listener = new KeyHandler();
         window.addKeyListener(listener);
 
+        //Below, we'll create and start a timer that notifies an ActionListener every time it ticks
+        //First, need to create the listener:
         ActionListener gameUpdater = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //Do game stuff
-                
+
                 moveBall();
                 moveComputerPaddle();
                 
                 if (gameOver) {
-                    
-                    //displayGameOver();
                     timer.stop();
                 }
-                
                 gamePanel.repaint();
                 
             }
@@ -193,83 +193,50 @@ public class Main {
                 //Hit computer paddle?
                 if (ballX <= paddleDistanceFromSide && (ballY > computerPaddleY-paddleSize && ballY < computerPaddleY+paddleSize))
                     hitComputerPaddle = true;
-    
-    
-                /* Remember: 
-                static double ballSpeed = 5;   //Again, pixels moved per clock tick
-                static double ballDirection = 0;  //an angle, in radians 
-    */
 
 
                 if (hitWall == true) {
                     //bounce
                     ballDirection = ( (2 * Math.PI) - ballDirection );
                     System.out.println("ball direction " + ballDirection);
-
-
                 }
-                
+
+                //Bounce off computer paddle - just need to modify direction
                 if (hitComputerPaddle == true) {
-                    //TODO bounce off paddle
-
                     ballDirection = (Math.PI) - ballDirection;
-                    //TODO factor in speed
-
-                    ballDirection += computerPaddleSpeed * 0.01;
-
+                    //TODO factor in speed into new direction
+                    //TODO So if paddle is moving down quickly, the ball will angle more down too
 
                 }
-                
+
+                //Bounce off computer paddle - just need to modify direction
                 if (hitHumanPaddle == true) {
-                    //TODO verify actually bounce off paddle
-                    //Reverse direction
                     ballDirection = (Math.PI) - ballDirection;
                     //TODO consider speed of paddle
-
-
-
                 }
-                
-               // if (hitWall == false && hitComputerPaddle == false && hitHumanPaddle == false) {
-                    //TODO ball is in "mid air"
-                    //Continue current trajectory
 
-                    //MATH
+                //Now, move ball correct distance in the correct direction
 
-                    //distance to move in the X direction is ballspeed * cos(ballDirection)
-                    //distance to move in the Y direction is ballspeed * sin(ballDirection)
+                // ** TRIGONOMETRY **
 
-                    ballX = ballX + (ballSpeed * Math.cos(ballDirection));
-                    ballY = ballY + (ballSpeed * Math.sin(ballDirection));
+                //distance to move in the X direction is ballspeed * cos(ballDirection)
+                //distance to move in the Y direction is ballspeed * sin(ballDirection)
 
+                ballX = ballX + (ballSpeed * Math.cos(ballDirection));
+                ballY = ballY + (ballSpeed * Math.sin(ballDirection));
 
-              //  }
+                // ** TRIGONOMETRY END **
 
-
-
-            }
-
-
-            boolean ballGoingUp() {
-                    double absBallDirection = ballDirection % (Math.PI * 2);
-
-                    if (absBallDirection > (Math.PI / 2) && absBallDirection < Math.PI / 3 * 4){
-                        return false;
-                    }
-                    return true;
             }
 
             void moveComputerPaddle(){
-                //System.out.println("move computer paddle");
-                
-                
+
                 //if ballY = 100 and paddleY is 50, difference = 50, need to adjust  
                 //paddleY by up to the max speed (the minimum of difference and maxSpeed)
                 
                 //if ballY = 50 and paddleY = 100 then difference = -50
                 //Need to move paddleY down by the max speed
-                
-                
+
                 int ballPaddleDifference = computerPaddleY - (int)ballY;
                 int distanceToMove = Math.min(Math.abs(ballPaddleDifference), computerPaddleMaxSpeed);
 
@@ -285,17 +252,13 @@ public class Main {
                     //Ball and paddle are aligned. Don't need to move!
                     computerPaddleSpeed = 0;
                 }
-                
-                
-                
+
             }
-            
-            
-            
+
         };
         
         timer = new Timer(gameSpeed, gameUpdater);
-        timer.start();
+        timer.start();    //Every time the timer ticks, the
     }
     
 }
