@@ -31,15 +31,17 @@ public class Main {
     
     static double  ballX = screenSize / 2;
     static double  ballY = screenSize / 2;
+    static int ballSize = 10;
     
     static double ballSpeed = 5;   //Again, pixels moved per clock tick
     static double ballDirection = Math.PI / 2;  //an angle, in radians
-
-    static final int UP = 1;
-    static final int DOWN = 2;
-    static final int LEFT = 3;
-    static final int RIGHT = 4;
-    static int relativeDirection = DOWN;    //Adjust this if ballDirection is changed
+//    static double ballDirection = 0;
+//
+//    static final int UP = 1;
+//    static final int DOWN = 2;
+//    static final int LEFT = 3;
+//    static final int RIGHT = 4;
+//    static int relativeDirection = DOWN;    //Adjust this if ballDirection is changed
 
 
     static Timer timer;
@@ -49,7 +51,8 @@ public class Main {
     static boolean gameOver;
     
     private static class GameDisplay extends JPanel {
-        
+
+        @Override
         public void paintComponent(Graphics g) {
             super.paintComponent(g);
 
@@ -60,10 +63,10 @@ public class Main {
                 return;
             }
             
-            g.drawString( "Pong! \n Press up or down to start", 20, 30 );
+            g.drawString( "Pong! \n Press up or down to start\nPress q to quit", 20, 30 );
             g.setColor(Color.blue);
             //Ball
-            g.drawOval((int)ballX, (int)ballY, 10, 10);
+            g.drawOval((int)ballX, (int)ballY, ballSize, ballSize);
             //Computer paddle
             g.drawLine(paddleDistanceFromSide, computerPaddleY - paddleSize, paddleDistanceFromSide, computerPaddleY + paddleSize);
             //Human paddle
@@ -75,10 +78,14 @@ public class Main {
     private static class KeyHandler implements KeyListener {
         
         @Override
-        public void keyTyped(KeyEvent e) {}
+        public void keyTyped(KeyEvent ev) {		char keyPressed = ev.getKeyChar();
+            char q = 'q';
+            if( keyPressed == q){
+                System.exit(0);    //quit if user presses the q key.
+            }}
         
         @Override
-        public void keyReleased(KeyEvent e) {}
+        public void keyReleased(KeyEvent ev) {}
         
         @Override
         public void keyPressed(KeyEvent ev) {
@@ -125,6 +132,7 @@ public class Main {
         content.add(gamePanel, BorderLayout.CENTER);
         
         JFrame window = new JFrame("Pong!");
+        window.setUndecorated(true);
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         window.setContentPane(content);
         window.setSize(screenSize, screenSize);
@@ -168,17 +176,17 @@ public class Main {
                     gameOver = true;
                     return;
                 }
-                if (ballY <= 0 || ballY >= screenSize ) {
+                if (ballY <= 0 || ballY >= screenSize-ballSize) {
                     hitWall = true;
                 }
                 
                 //If ballX is at a paddle AND ballY is within the paddle size.
                 //Hit human paddle?
-                if (ballX >= screenSize-paddleDistanceFromSide && (ballY < humanPaddleY+paddleSize && ballY > humanPaddleY+paddleSize))
+                if (ballX >= screenSize-(paddleDistanceFromSide+(ballSize)) && (ballY > humanPaddleY-paddleSize && ballY < humanPaddleY+paddleSize))
                     hitHumanPaddle = true;
                 
                 //Hit computer paddle?
-                if (ballX <= paddleDistanceFromSide && (ballY < computerPaddleY+paddleSize && ballY > computerPaddleY+paddleSize))
+                if (ballX <= paddleDistanceFromSide && (ballY > computerPaddleY-paddleSize && ballY < computerPaddleY+paddleSize))
                     hitComputerPaddle = true;
     
     
@@ -189,27 +197,27 @@ public class Main {
 
 
                 if (hitWall == true) {
-                    //TODO bounce
-                    ballDirection = (2 * Math.PI) - ballDirection;
+                    //bounce
+                    ballDirection = (Math.PI) - ballDirection;
 
                 }
                 
                 if (hitComputerPaddle == true) {
                     //TODO bounce off paddle 
-                    ballDirection = (2 * Math.PI) - ballDirection;
+                    ballDirection = (Math.PI) - ballDirection;
                     //TODO factor in speed
 
                 }
                 
                 if (hitHumanPaddle == true) {
-                    //TODO bounce off paddle
+                    //TODO actually bounce off paddle
                     //Reverse direction
-                    ballDirection = (2 * Math.PI) - ballDirection;
+                    ballDirection = (Math.PI) - ballDirection;
                     //TODO consider speed
 
                 }
                 
-                if (hitWall == false && hitComputerPaddle == false && hitHumanPaddle == false) {
+               // if (hitWall == false && hitComputerPaddle == false && hitHumanPaddle == false) {
                     //TODO ball is in "mid air"
                     //Continue current trajectory
 
@@ -222,7 +230,7 @@ public class Main {
                     ballY = ballY + (ballSpeed * Math.sin(ballDirection));
 
 
-                }
+              //  }
 
 
 
