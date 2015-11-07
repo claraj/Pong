@@ -11,7 +11,7 @@ import java.awt.event.KeyListener;
 //TODO known issue - sometimes ball gets stuck behind human paddle
 
 public class Main {
-
+//A COMMENT TO SEE IF THE GITHUB IS WORKING OR NOT
     static int gameSpeed = 75;  //How many milliseconds between clock ticks? Reduce this to speed up game
     static int computerPaddleMaxSpeed = 3;   //Max number of pixels that computer paddle can move clock tick. Higher number = easier for computer
     static int humanPaddleMaxSpeed = 5;   //This doesn't quite do the same thing... this is how many pixels human moves per key press TODO use this in a better way
