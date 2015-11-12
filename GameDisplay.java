@@ -12,8 +12,8 @@ import java.awt.*;
     static int paddleDistanceFromSide = 10;  //How much space between each paddle and side of screen
     static boolean gameOver;
     static boolean removeInstructions = false;
-    static int computerPaddleY = GameDisplay.screenSize / 2 ;    //location of the center of the paddles on the Y-axis of the screen
-    static int humanPaddleY = GameDisplay.screenSize / 2 ;
+    static int computerPaddleY = screenSize / 2 ;    //location of the center of the paddles on the Y-axis of the screen
+    static int humanPaddleY = screenSize / 2 ;
     @Override
         public void paintComponent(Graphics g) {
             super.paintComponent(g);
@@ -23,6 +23,7 @@ import java.awt.*;
             if (gameOver == true) {
                 g.drawString( "Game over!", 20, 30 );
                 g.drawString(String.format("Computer Score: %d           Human Score: %d",Main.compScore,Main.humanScore),20,60);
+                g.drawString("press r ro restart the game.",20,40);
                 return;
             }
 
