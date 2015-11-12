@@ -12,10 +12,13 @@ public class KeyHandler implements KeyListener {
         if (keyPressed == q && GameDisplay.gameOver!=false) {
             System.exit(0);    //quit if user presses the q key after the game has been lost.
         }
-        else if (keyPressed==r && GameDisplay.gameOver!=false){
+        else if (keyPressed==r && GameDisplay.gameOver==true){
             System.out.println("I hear you typeing that ARRRRRRRRRR");
-
+        Main.restartGame(Main.ballList);//Close, getting close
+            GameDisplay.gameOver=false;
+            System.out.println("That might have worked!");
         }
+
     }
 
 
@@ -42,18 +45,19 @@ public class KeyHandler implements KeyListener {
         //ev.getComponent() returns the GUI component that generated this event
         //In this case, it will be GameDisplay JPanel
         ev.getComponent().repaint();   //This calls paintComponent(Graphics g) again
+        System.out.println("I am painting by the pressing of any keys at all.");
     }
     private void moveDown() {
         //Coordinates decrease as you go up the screen, that's why this looks backwards.
         if (GameDisplay.humanPaddleY < GameDisplay.screenSize - GameDisplay.paddleSize) {
-            GameDisplay.humanPaddleY+=Main.humanPaddleMaxSpeed;
+            GameDisplay.humanPaddleY+=MainGame.humanPaddleMaxSpeed;
         }
     }
 
     private void moveUp() {
         //Coordinates increase as you go down the screen, that's why this looks backwards.
         if (GameDisplay.humanPaddleY > GameDisplay.paddleSize) {
-            GameDisplay.humanPaddleY-=Main.humanPaddleMaxSpeed;
+            GameDisplay.humanPaddleY-=MainGame.humanPaddleMaxSpeed;
         }
     }
 }
