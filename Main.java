@@ -5,13 +5,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.LinkedList;
 
 
 //TODO have paddle speed affect ball's direction
 //TODO known issue - sometimes ball gets stuck behind human paddle
 
 public class Main {
-//A COMMENT TO SEE IF THE GITHUB IS WORKING OR NOT
+    static LinkedList<Ball> ballList=new LinkedList<>();
+    static Ball ball = new Ball();
+
     static int gameSpeed = 75;  //How many milliseconds between clock ticks? Reduce this to speed up game
     static int computerPaddleMaxSpeed = 3;   //Max number of pixels that computer paddle can move clock tick. Higher number = easier for computer
     static int humanPaddleMaxSpeed = 5;   //This doesn't quite do the same thing... this is how many pixels human moves per key press TODO use this in a better way
@@ -36,11 +39,12 @@ public class Main {
 
 
     public static void main(String[] args) {
-
+        ballList.add(ball);
         GameDisplay.gamePanel = new GameDisplay();
-        final Ball ball = new Ball();
+
         Points_Observer pointsObserver= new Points_Observer();
         ball.addObserver(pointsObserver);
+        //draw the panel
         JPanel content = new JPanel();
         content.setLayout(new BorderLayout());
         content.add(GameDisplay.gamePanel, BorderLayout.CENTER);
@@ -51,7 +55,7 @@ public class Main {
         window.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);   //Quit the program when we close this window
         window.setContentPane(content);
         window.setSize(GameDisplay.screenSize, GameDisplay.screenSize);
-        window.setLocation(100,100);    //Where on the screen will this window appear?
+        window.setLocation(200,200);    //Where on the screen will this window appear?
         window.setVisible(true);
 
         KeyHandler listener = new KeyHandler();
@@ -72,7 +76,6 @@ public class Main {
 
                 if (GameDisplay.gameOver) {
                     ball.pointScored(ball);
-                    timer.stop();
                 }
                 GameDisplay.gamePanel.repaint();
             }
@@ -100,10 +103,44 @@ public class Main {
         compScore = compScore+1;
     }
 
+public static void restartGame(LinkedList<Ball> ballList){
+        GameDisplay.gamePanel = new GameDisplay();
+        ballList.add(ball);
+        //draw the panel
+        ball.setBallX(GameDisplay.screenSize / 2);
+        ball.setBallY(GameDisplay.screenSize/2);
 
 
+        //Below, we'll create and start a timer that notifies an ActionListener every time it ticks
+        //First, need to create the listener:
+        ActionListener gameUpdater = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
 
+                //gameUpdater is an inner class
+                //It's containing class is Main
+                //moveBall() and moveComputerPaddle belong to the outer class - Main
+                //So we have to say Main.moveBall() to refer to these methods
+                ball.moveBall();
+                moveComputerPaddle.moveComputerPaddle();
+
+                if (GameDisplay.gameOver) {
+                    ball.pointScored(ball);
+                    restartGame(ballList);
+                }
+                GameDisplay.gamePanel.repaint();
+            }
+        };
+        timer = new Timer(gameSpeed, gameUpdater);
+        timer.start();    //Every time the timer ticks, the actionPerformed method of the ActionListener is called
+    }
 }
+
+
+
+
+
+
 
 
 
