@@ -18,6 +18,14 @@ public class Ball extends Observable{
         return ballX;
     }
 
+    public static void setBallX(double ballX) {
+        Ball.ballX = ballX;
+    }
+
+    public static void setBallY(double ballY) {
+        Ball.ballY = ballY;
+    }
+
     static double  ballX = GameDisplay.screenSize / 2;   //Imagine the ball is in a square box. These are the coordinates of the top of that box.
     static double  ballY = GameDisplay.screenSize / 2;   //So this starts the ball in (roughly) the center of the screen
     static int ballSize = 10;
@@ -56,13 +64,13 @@ public class Ball extends Observable{
 
         if (hitWall == true) {
             //bounce
-            Main.ballDirection = ( (2 * Math.PI) - Main.ballDirection );
-            System.out.println("ball direction " + Main.ballDirection);
+            MainGame.ballDirection = ( (2 * Math.PI) - MainGame.ballDirection );
+            System.out.println("ball direction " + MainGame.ballDirection);
         }
 
         //Bounce off computer paddle - just need to modify direction
         if (hitComputerPaddle == true) {
-            Main.ballDirection = (Math.PI) - Main.ballDirection;
+            MainGame.ballDirection = (Math.PI) - MainGame.ballDirection;
 
             //TODO factor in speed into new direction
             //TODO So if paddle is moving down quickly, the ball will angle more down too
@@ -71,7 +79,7 @@ public class Ball extends Observable{
 
         //Bounce off computer paddle - just need to modify direction
         if (hitHumanPaddle == true) {
-            Main.ballDirection = (Math.PI) - Main.ballDirection;
+            MainGame.ballDirection = (Math.PI) - MainGame.ballDirection;
             //TODO consider speed of paddle
         }
 
@@ -82,8 +90,8 @@ public class Ball extends Observable{
         //distance to move in the X direction is ballSpeed * cos(ballDirection)
         //distance to move in the Y direction is ballSpeed * sin(ballDirection)
 
-        ballX = ballX + (Main.ballSpeed * Math.cos(Main.ballDirection));
-        ballY = ballY + (Main.ballSpeed * Math.sin(Main.ballDirection));
+        ballX = ballX + (MainGame.ballSpeed * Math.cos(MainGame.ballDirection));
+        ballY = ballY + (MainGame.ballSpeed * Math.sin(MainGame.ballDirection));
 
         // ** TRIGONOMETRY END **
 
