@@ -63,27 +63,30 @@ public class Main {
 
         //Below, we'll create and start a timer that notifies an ActionListener every time it ticks
         //First, need to create the listener:
-        ActionListener gameUpdater = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
+       //while(timer.isRunning()==true) {
+           ActionListener gameUpdater = new ActionListener() {
+               @Override
+               public void actionPerformed(ActionEvent e) {
 
-                //gameUpdater is an inner class
-                //It's containing class is Main
-                //moveBall() and moveComputerPaddle belong to the outer class - Main
-                //So we have to say Main.moveBall() to refer to these methods
-                ball.moveBall();
-                moveComputerPaddle.moveComputerPaddle();
+                   //gameUpdater is an inner class
+                   //It's containing class is Main
+                   //moveBall() and moveComputerPaddle belong to the outer class - Main
+                   //So we have to say Main.moveBall() to refer to these methods
+                   ball.moveBall();
+                   moveComputerPaddle.moveComputerPaddle();
 
-                if (GameDisplay.gameOver) {
-                    ball.pointScored(ball);
-                }
-                GameDisplay.gamePanel.repaint();
-            }
-        };
+                   if (GameDisplay.gameOver) {
+                       ball.pointScored(ball);
+                       timer.stop();
+                   }
+                   GameDisplay.gamePanel.repaint();
+               }
+           };
 
-        timer = new Timer(gameSpeed, gameUpdater);
-        timer.start();    //Every time the timer ticks, the actionPerformed method of the ActionListener is called
-    }
+           timer = new Timer(gameSpeed, gameUpdater);
+           timer.start();    //Every time the timer ticks, the actionPerformed method of the ActionListener is called
+     //  }
+       }
      static int compScore=0;
      static int humanScore=0;
     //Uses the current position of ball and paddle to move the computer paddle towards the ball
@@ -103,36 +106,38 @@ public class Main {
         compScore = compScore+1;
     }
 
-public static void restartGame(LinkedList<Ball> ballList){
+public static void restartGame(LinkedList<Ball> ballList,Timer timer){
         GameDisplay.gamePanel = new GameDisplay();
         ballList.add(ball);
         //draw the panel
         ball.setBallX(GameDisplay.screenSize / 2);
         ball.setBallY(GameDisplay.screenSize/2);
-
+GameDisplay.gameOver=false;
+    GameDisplay.removeInstructions=true;
+    timer.start();
 
         //Below, we'll create and start a timer that notifies an ActionListener every time it ticks
         //First, need to create the listener:
-        ActionListener gameUpdater = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                //gameUpdater is an inner class
-                //It's containing class is Main
-                //moveBall() and moveComputerPaddle belong to the outer class - Main
-                //So we have to say Main.moveBall() to refer to these methods
-                ball.moveBall();
-                moveComputerPaddle.moveComputerPaddle();
-
-                if (GameDisplay.gameOver) {
-                    ball.pointScored(ball);
-                    restartGame(ballList);
-                }
-                GameDisplay.gamePanel.repaint();
-            }
-        };
-        timer = new Timer(gameSpeed, gameUpdater);
-        timer.start();    //Every time the timer ticks, the actionPerformed method of the ActionListener is called
+/**        ActionListener gameUpdater = new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//
+//                //gameUpdater is an inner class
+//                //It's containing class is Main
+//                //moveBall() and moveComputerPaddle belong to the outer class - Main
+//                //So we have to say Main.moveBall() to refer to these methods
+//                ball.moveBall();
+//                moveComputerPaddle.moveComputerPaddle();
+//
+//                if (GameDisplay.gameOver) {
+//                    ball.pointScored(ball);
+//                    restartGame(ballList);
+//                }
+//                GameDisplay.gamePanel.repaint();
+//            }
+//        };
+//        timer = new Timer(gameSpeed, gameUpdater);
+//        timer.start();    //Every time the timer ticks, the actionPerformed method of the ActionListener is called**/
     }
 }
 
