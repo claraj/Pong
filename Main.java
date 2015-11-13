@@ -110,8 +110,8 @@ public class Main {
     }
 
 public static void restartGame(LinkedList<Ball> ballList,Timer timer){
-        GameDisplay.gamePanel = new GameDisplay();
-        ballList.add(ball);
+       // GameDisplay.gamePanel = new GameDisplay();  ///This is the problem, you are creating a new gamePanel. Don't need to, you can re-use the original one. The paintComponent method is painting the initial version created when you launch the game. 
+        ballList.add(ball);   //What is this variable for? Can you re-use the original Ball?
         //draw the panel
         ball.setBallX(GameDisplay.screenSize / 2);
         ball.setBallY(GameDisplay.screenSize/2);
