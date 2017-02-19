@@ -54,32 +54,32 @@ public class Main {
     private static class GameDisplay extends JPanel {
 
         @Override
-        public void paintComponent(Graphics g) {
-            super.paintComponent(g);
+        public void paintComponent(Graphics graphics) {
+            super.paintComponent(graphics);
 
             //System.out.println("* Repaint *");
 
-            if (gameOver == true) {
-                g.drawString( "Game over!", 20, 30 );
+            if (gameOver) {
+                graphics.drawString( "Game over!", 20, 30 );
                 return;
             }
 
-            if (removeInstructions == false ) {
-                g.drawString("Pong! Press up or down to move", 20, 30);
-                g.drawString("Press q to quit", 20, 60);
+            if (removeInstructions ) {
+                graphics.drawString("Pong! Press up or down to move", 20, 30);
+                graphics.drawString("Press q to quit", 20, 60);
             }
 
-            g.setColor(Color.blue);
+            graphics.setColor(Color.blue);
 
             //While game is playing, these methods draw the ball, paddles, using the global variables
             //Other parts of the code will modify these variables
 
             //Ball - a circle is just an oval with the height equal to the width
-            g.drawOval((int)ballX, (int)ballY, ballSize, ballSize);
+            graphics.drawOval((int)ballX, (int)ballY, ballSize, ballSize);
             //Computer paddle
-            g.drawLine(paddleDistanceFromSide, computerPaddleY - paddleSize, paddleDistanceFromSide, computerPaddleY + paddleSize);
+            graphics.drawLine(paddleDistanceFromSide, computerPaddleY - paddleSize, paddleDistanceFromSide, computerPaddleY + paddleSize);
             //Human paddle
-            g.drawLine(screenSize - paddleDistanceFromSide, humanPaddleY - paddleSize, screenSize - paddleDistanceFromSide, humanPaddleY + paddleSize);
+            graphics.drawLine(screenSize - paddleDistanceFromSide, humanPaddleY - paddleSize, screenSize - paddleDistanceFromSide, humanPaddleY + paddleSize);
             
         }
     }
@@ -88,10 +88,10 @@ public class Main {
     private static class KeyHandler implements KeyListener {
         
         @Override
-        public void keyTyped(KeyEvent ev) {
-            char keyPressed = ev.getKeyChar();
-            char q = 'q';
-            if( keyPressed == q){
+        public void keyTyped(KeyEvent keyEvent) {
+            char keyPressed = keyEvent.getKeyChar();
+            char qiuteKey = 'q';
+            if( keyPressed == qiuteKey){
                 System.exit(0);    //quit if user presses the q key.
             }
         }
@@ -167,10 +167,8 @@ public class Main {
                 //So we have to say Main.moveBall() to refer to these methods
                 Main.moveBall();
                 Main.moveComputerPaddle();
+                Main.checkGameOver();
 
-                if (gameOver) {
-                    timer.stop();
-                }
                 gamePanel.repaint();
             }
         };
@@ -239,14 +237,14 @@ public class Main {
             hitComputerPaddle = true;
 
 
-        if (hitWall == true) {
+        if (hitWall) {
             //bounce
             ballDirection = ( (2 * Math.PI) - ballDirection );
             System.out.println("ball direction " + ballDirection);
         }
 
         //Bounce off computer paddle - just need to modify direction
-        if (hitComputerPaddle == true) {
+        if (hitComputerPaddle) {
             ballDirection = (Math.PI) - ballDirection;
             //TODO factor in speed into new direction
             //TODO So if paddle is moving down quickly, the ball will angle more down too
@@ -254,7 +252,7 @@ public class Main {
         }
 
         //Bounce off computer paddle - just need to modify direction
-        if (hitHumanPaddle == true) {
+        if (hitHumanPaddle) {
             ballDirection = (Math.PI) - ballDirection;
             //TODO consider speed of paddle
         }
@@ -271,6 +269,14 @@ public class Main {
 
         // ** TRIGONOMETRY END **
 
+    }
+
+    private static boolean checkGameOver(){
+        if (gameOver) {
+            timer.stop();
+            return true;
+        }
+        return false;
     }
 }
 
