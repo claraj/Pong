@@ -165,9 +165,11 @@ public class Main {
                 //It's containing class is Main
                 //moveBall() and moveComputerPaddle belong to the outer class - Main
                 //So we have to say Main.moveBall() to refer to these methods
-                Main.moveBall();
-                Main.moveComputerPaddle();
-                Main.checkGameOver();
+                if(!Main.checkGameOver()) {
+                    Main.checkDirectionChange();
+                    Main.moveBall();
+                    Main.moveComputerPaddle();
+                }
 
                 gamePanel.repaint();
             }
@@ -180,16 +182,8 @@ public class Main {
     //Uses the current position of ball and paddle to move the computer paddle towards the ball
     protected static void moveComputerPaddle(){
 
-        //if ballY = 100 and paddleY is 50, difference = 50, need to adjust
-        //paddleY by up to the max speed (the minimum of difference and maxSpeed)
-
-        //if ballY = 50 and paddleY = 100 then difference = -50
-        //Need to move paddleY down by the max speed
-
         int ballPaddleDifference = computerPaddleY - (int)ballY;
         int distanceToMove = Math.min(Math.abs(ballPaddleDifference), computerPaddleMaxSpeed);
-
-        System.out.println("computer paddle speed = " + computerPaddleSpeed);
 
         if (ballPaddleDifference > 0 ) {   //Difference is positive - paddle is below ball on screen
             computerPaddleY -= distanceToMove;
@@ -208,76 +202,53 @@ public class Main {
     //If so, bounce off the wall/paddle
     //And then move ball in the correct direction
     protected static void moveBall() {
-        System.out.println("move ball");
-        //move in current direction
-        //bounce off walls and paddle
-        //TODO Take into account speed of paddles
-
-        //Work in double
-
-        boolean hitWall = false;
-        boolean hitHumanPaddle = false;
-        boolean hitComputerPaddle = false;
-
-        if (ballX <= 0 || ballX >= screenSize ) {
-            gameOver = true;
-            return;
-        }
-        if (ballY <= 0 || ballY >= screenSize-ballSize) {
-            hitWall = true;
-        }
-
-        //If ballX is at a paddle AND ballY is within the paddle size.
-        //Hit human paddle?
-        if (ballX >= screenSize-(paddleDistanceFromSide+(ballSize)) && (ballY > humanPaddleY-paddleSize && ballY < humanPaddleY+paddleSize))
-            hitHumanPaddle = true;
-
-        //Hit computer paddle?
-        if (ballX <= paddleDistanceFromSide && (ballY > computerPaddleY-paddleSize && ballY < computerPaddleY+paddleSize))
-            hitComputerPaddle = true;
-
-
-        if (hitWall) {
-            //bounce
-            ballDirection = ( (2 * Math.PI) - ballDirection );
-            System.out.println("ball direction " + ballDirection);
-        }
-
-        //Bounce off computer paddle - just need to modify direction
-        if (hitComputerPaddle) {
-            ballDirection = (Math.PI) - ballDirection;
-            //TODO factor in speed into new direction
-            //TODO So if paddle is moving down quickly, the ball will angle more down too
-
-        }
-
-        //Bounce off computer paddle - just need to modify direction
-        if (hitHumanPaddle) {
-            ballDirection = (Math.PI) - ballDirection;
-            //TODO consider speed of paddle
-        }
-
-        //Now, move ball correct distance in the correct direction
-
-        // ** TRIGONOMETRY **
-
-        //distance to move in the X direction is ballSpeed * cos(ballDirection)
-        //distance to move in the Y direction is ballSpeed * sin(ballDirection)
-
         ballX = ballX + (ballSpeed * Math.cos(ballDirection));
         ballY = ballY + (ballSpeed * Math.sin(ballDirection));
+    }
 
-        // ** TRIGONOMETRY END **
-
+    private static void checkDirectionChange(){
+        if (checkHitHumanPaddle()) {
+            ballDirection = (Math.PI) - ballDirection;
+        }
+        if (checkHitComputePaddle()) {
+            ballDirection = (Math.PI) - ballDirection;
+        }
+        if(checkHitWall()){
+            ballDirection = ( (2 * Math.PI) - ballDirection );
+        }
     }
 
     private static boolean checkGameOver(){
-        if (gameOver) {
+        if (ballX <= 0 || ballX >= screenSize ) {
+            gameOver = true;
             timer.stop();
             return true;
         }
         return false;
     }
+
+    private static boolean checkHitWall(){
+        if (ballY <= 0 || ballY >= screenSize-ballSize) {
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean checkHitHumanPaddle(){
+        if (ballX >= screenSize-(paddleDistanceFromSide+(ballSize)) && (ballY > humanPaddleY-paddleSize && ballY < humanPaddleY+paddleSize)){
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean checkHitComputePaddle(){
+        if (ballX <= paddleDistanceFromSide && (ballY > computerPaddleY-paddleSize && ballY < computerPaddleY+paddleSize)){
+            return true;
+        }
+        return false;
+    }
+
+
 }
 
 
