@@ -54,32 +54,32 @@ public class Main {
     private static class GameDisplay extends JPanel {
 
         @Override
-        public void paintComponent(Graphics g) {
-            super.paintComponent(g);
+        public void paintComponent(Graphics graphics) {
+            super.paintComponent(graphics);
 
             //System.out.println("* Repaint *");
 
-            if (gameOver == true) {
-                g.drawString( "Game over!", 20, 30 );
+            if (gameOver) {
+                graphics.drawString( "Game over!", 20, 30 );
                 return;
             }
 
-            if (removeInstructions == false ) {
-                g.drawString("Pong! Press up or down to move", 20, 30);
-                g.drawString("Press q to quit", 20, 60);
+            if (removeInstructions ) {
+                graphics.drawString("Pong! Press up or down to move", 20, 30);
+                graphics.drawString("Press q to quit", 20, 60);
             }
 
-            g.setColor(Color.blue);
+            graphics.setColor(Color.blue);
 
             //While game is playing, these methods draw the ball, paddles, using the global variables
             //Other parts of the code will modify these variables
 
             //Ball - a circle is just an oval with the height equal to the width
-            g.drawOval((int)ballX, (int)ballY, ballSize, ballSize);
+            graphics.drawOval((int)ballX, (int)ballY, ballSize, ballSize);
             //Computer paddle
-            g.drawLine(paddleDistanceFromSide, computerPaddleY - paddleSize, paddleDistanceFromSide, computerPaddleY + paddleSize);
+            graphics.drawLine(paddleDistanceFromSide, computerPaddleY - paddleSize, paddleDistanceFromSide, computerPaddleY + paddleSize);
             //Human paddle
-            g.drawLine(screenSize - paddleDistanceFromSide, humanPaddleY - paddleSize, screenSize - paddleDistanceFromSide, humanPaddleY + paddleSize);
+            graphics.drawLine(screenSize - paddleDistanceFromSide, humanPaddleY - paddleSize, screenSize - paddleDistanceFromSide, humanPaddleY + paddleSize);
             
         }
     }
@@ -88,10 +88,10 @@ public class Main {
     private static class KeyHandler implements KeyListener {
         
         @Override
-        public void keyTyped(KeyEvent ev) {
-            char keyPressed = ev.getKeyChar();
-            char q = 'q';
-            if( keyPressed == q){
+        public void keyTyped(KeyEvent keyEvent) {
+            char keyPressed = keyEvent.getKeyChar();
+            char qiuteKey = 'q';
+            if( keyPressed == qiuteKey){
                 System.exit(0);    //quit if user presses the q key.
             }
         }
@@ -165,12 +165,12 @@ public class Main {
                 //It's containing class is Main
                 //moveBall() and moveComputerPaddle belong to the outer class - Main
                 //So we have to say Main.moveBall() to refer to these methods
-                Main.moveBall();
-                Main.moveComputerPaddle();
-
-                if (gameOver) {
-                    timer.stop();
+                if(!Main.checkGameOver()) {
+                    Main.checkDirectionChange();
+                    Main.moveBall();
+                    Main.moveComputerPaddle();
                 }
+
                 gamePanel.repaint();
             }
         };
@@ -182,16 +182,8 @@ public class Main {
     //Uses the current position of ball and paddle to move the computer paddle towards the ball
     protected static void moveComputerPaddle(){
 
-        //if ballY = 100 and paddleY is 50, difference = 50, need to adjust
-        //paddleY by up to the max speed (the minimum of difference and maxSpeed)
-
-        //if ballY = 50 and paddleY = 100 then difference = -50
-        //Need to move paddleY down by the max speed
-
         int ballPaddleDifference = computerPaddleY - (int)ballY;
         int distanceToMove = Math.min(Math.abs(ballPaddleDifference), computerPaddleMaxSpeed);
-
-        System.out.println("computer paddle speed = " + computerPaddleSpeed);
 
         if (ballPaddleDifference > 0 ) {   //Difference is positive - paddle is below ball on screen
             computerPaddleY -= distanceToMove;
@@ -210,68 +202,53 @@ public class Main {
     //If so, bounce off the wall/paddle
     //And then move ball in the correct direction
     protected static void moveBall() {
-        System.out.println("move ball");
-        //move in current direction
-        //bounce off walls and paddle
-        //TODO Take into account speed of paddles
-
-        //Work in double
-
-        boolean hitWall = false;
-        boolean hitHumanPaddle = false;
-        boolean hitComputerPaddle = false;
-
-        if (ballX <= 0 || ballX >= screenSize ) {
-            gameOver = true;
-            return;
-        }
-        if (ballY <= 0 || ballY >= screenSize-ballSize) {
-            hitWall = true;
-        }
-
-        //If ballX is at a paddle AND ballY is within the paddle size.
-        //Hit human paddle?
-        if (ballX >= screenSize-(paddleDistanceFromSide+(ballSize)) && (ballY > humanPaddleY-paddleSize && ballY < humanPaddleY+paddleSize))
-            hitHumanPaddle = true;
-
-        //Hit computer paddle?
-        if (ballX <= paddleDistanceFromSide && (ballY > computerPaddleY-paddleSize && ballY < computerPaddleY+paddleSize))
-            hitComputerPaddle = true;
-
-
-        if (hitWall == true) {
-            //bounce
-            ballDirection = ( (2 * Math.PI) - ballDirection );
-            System.out.println("ball direction " + ballDirection);
-        }
-
-        //Bounce off computer paddle - just need to modify direction
-        if (hitComputerPaddle == true) {
-            ballDirection = (Math.PI) - ballDirection;
-            //TODO factor in speed into new direction
-            //TODO So if paddle is moving down quickly, the ball will angle more down too
-
-        }
-
-        //Bounce off computer paddle - just need to modify direction
-        if (hitHumanPaddle == true) {
-            ballDirection = (Math.PI) - ballDirection;
-            //TODO consider speed of paddle
-        }
-
-        //Now, move ball correct distance in the correct direction
-
-        // ** TRIGONOMETRY **
-
-        //distance to move in the X direction is ballSpeed * cos(ballDirection)
-        //distance to move in the Y direction is ballSpeed * sin(ballDirection)
-
         ballX = ballX + (ballSpeed * Math.cos(ballDirection));
         ballY = ballY + (ballSpeed * Math.sin(ballDirection));
-
-        // ** TRIGONOMETRY END **
-
     }
+
+    private static void checkDirectionChange(){
+        if (checkHitHumanPaddle()) {
+            ballDirection = (Math.PI) - ballDirection;
+        }
+        if (checkHitComputePaddle()) {
+            ballDirection = (Math.PI) - ballDirection;
+        }
+        if(checkHitWall()){
+            ballDirection = ( (2 * Math.PI) - ballDirection );
+        }
+    }
+
+    private static boolean checkGameOver(){
+        if (ballX <= 0 || ballX >= screenSize ) {
+            gameOver = true;
+            timer.stop();
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean checkHitWall(){
+        if (ballY <= 0 || ballY >= screenSize-ballSize) {
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean checkHitHumanPaddle(){
+        if (ballX >= screenSize-(paddleDistanceFromSide+(ballSize)) && (ballY > humanPaddleY-paddleSize && ballY < humanPaddleY+paddleSize)){
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean checkHitComputePaddle(){
+        if (ballX <= paddleDistanceFromSide && (ballY > computerPaddleY-paddleSize && ballY < computerPaddleY+paddleSize)){
+            return true;
+        }
+        return false;
+    }
+
+
 }
 
 
